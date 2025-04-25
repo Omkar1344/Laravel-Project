@@ -2,8 +2,19 @@ services:
   - type: web
     name: bakery-website
     env: php
-    buildCommand: chmod +x render-build.sh && ./render-build.sh
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    buildCommand: |
+      apt-get update && apt-get install -y unzip
+      curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+      composer install --no-interaction --no-dev --optimize-autoloader
+      php artisan key:generate
+      php artisan storage:link
+      php artisan migrate --force
+      php artisan db:seed --force
+      npm install
+      npm run build
+    startCommand: |
+      apt-get update && apt-get install -y php8.2 php8.2-cli php8.2-common php8.2-curl php8.2-mbstring php8.2-mysql php8.2-xml php8.2-zip php8.2-gd php8.2-sqlite3
+      php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_ENV
         value: production
@@ -12,7 +23,7 @@ services:
       - key: APP_KEY
         generateValue: true
       - key: APP_URL
-        value: https://your-app-name.onrender.com
+        value: https://bakery-website.onrender.com
       - key: DB_CONNECTION
         value: sqlite
       - key: DB_DATABASE
@@ -24,4 +35,4 @@ services:
       - key: QUEUE_CONNECTION
         value: sync
       - key: VITE_APP_URL
-        value: https://your-app-name.onrender.com 
+        value: https://bakery-website.onrender.com 
