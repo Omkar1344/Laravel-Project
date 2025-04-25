@@ -48,8 +48,8 @@ COPY . .
 # Copy built assets from build stage
 COPY --from=build /app/public/build ./public/build
 
-# Install PHP dependencies
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+# Install PHP dependencies including dev dependencies for seeding
+RUN composer install --no-interaction --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -63,12 +63,14 @@ COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 # Create storage link
 RUN php artisan storage:link
 
-
 # Run migrations
 RUN php artisan migrate --force
 
 # Seed the database
 RUN php artisan db:seed --force
+
+# Remove dev dependencies after seeding
+RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Clear all caches
 RUN php artisan config:clear \
