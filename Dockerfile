@@ -63,8 +63,6 @@ COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 # Create storage link
 RUN php artisan storage:link
 
-# Generate application key
-RUN php artisan key:generate
 
 # Run migrations
 RUN php artisan migrate --force

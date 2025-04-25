@@ -11,7 +11,7 @@ services:
       - key: APP_DEBUG
         value: false
       - key: APP_KEY
-        generateValue: true
+        value: base64:abcdefghijklmnopqrstuvwxyz1234567890=
       - key: APP_URL
         value: https://bakery-website.onrender.com
       - key: DB_CONNECTION
