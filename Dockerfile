@@ -1,4 +1,4 @@
-FROM php:8.2-fpm
+FROM php:8.2-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,7 +8,9 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    unzip
+    unzip \
+    nodejs \
+    npm
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -26,13 +28,16 @@ WORKDIR /var/www
 COPY . .
 
 # Install dependencies
-RUN composer install
+RUN composer install --no-interaction --no-dev --optimize-autoloader
+
+# Install Node.js dependencies and build assets
+RUN npm install && npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www
 
-# Expose port 9000
-EXPOSE 9000
+# Expose port 8000
+EXPOSE 8000
 
-# Start PHP-FPM
-CMD ["php-fpm"] 
+# Start the application
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"] 
