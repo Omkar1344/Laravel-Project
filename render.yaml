@@ -2,7 +2,7 @@ services:
   - type: web
     name: bakery-website
     env: php
-    buildCommand: composer install
+    buildCommand: chmod +x render-build.sh && ./render-build.sh
     startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
     envVars:
       - key: APP_ENV
@@ -22,4 +22,6 @@ services:
       - key: SESSION_DRIVER
         value: file
       - key: QUEUE_CONNECTION
-        value: sync 
+        value: sync
+      - key: VITE_APP_URL
+        value: https://your-app-name.onrender.com 
