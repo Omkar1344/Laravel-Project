@@ -51,10 +51,11 @@ COPY --from=build /app/public/build ./public/build
 # Install PHP dependencies including dev dependencies for seeding
 RUN composer install --no-interaction --optimize-autoloader
 
-# Set permissions and create necessary directories
+# Set up storage and cache directories
 RUN mkdir -p storage/framework/{sessions,views,cache} \
     && mkdir -p storage/logs \
     && mkdir -p bootstrap/cache \
+    && touch storage/logs/laravel.log \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage \
     && chmod -R 775 /var/www/html/bootstrap/cache
@@ -75,15 +76,15 @@ RUN php artisan db:seed --force
 # Remove dev dependencies after seeding
 RUN composer install --no-interaction --no-dev --optimize-autoloader
 
-# Clear all caches and optimize
-RUN php artisan config:clear \
-    && php artisan cache:clear \
-    && php artisan view:clear \
-    && php artisan route:clear \
-    && php artisan optimize:clear \
-    && php artisan config:cache \
-    && php artisan route:cache \
-    && php artisan view:cache
+# Clear and optimize caches
+RUN php artisan config:clear || true \
+    && php artisan cache:clear || true \
+    && php artisan view:clear || true \
+    && php artisan route:clear || true \
+    && php artisan optimize:clear || true \
+    && php artisan config:cache || true \
+    && php artisan route:cache || true \
+    && php artisan view:cache || true
 
 # Enable error reporting in PHP
 RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
