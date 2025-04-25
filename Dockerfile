@@ -53,11 +53,30 @@ RUN composer install --no-interaction --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 755 /var/www/html/storage
+    && chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache
 
 # Configure Apache
 RUN a2enmod rewrite
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Create storage link
+RUN php artisan storage:link
+
+# Generate application key
+RUN php artisan key:generate
+
+# Run migrations
+RUN php artisan migrate --force
+
+# Seed the database
+RUN php artisan db:seed --force
+
+# Clear all caches
+RUN php artisan config:clear \
+    && php artisan cache:clear \
+    && php artisan view:clear \
+    && php artisan route:clear
 
 # Expose port 80
 EXPOSE 80
