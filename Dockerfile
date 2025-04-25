@@ -81,17 +81,20 @@ RUN php artisan config:clear || true \
     && php artisan cache:clear || true \
     && php artisan view:clear || true \
     && php artisan route:clear || true \
-    && php artisan optimize:clear || true \
-    && php artisan config:cache || true \
-    && php artisan route:cache || true \
-    && php artisan view:cache || true
+    && php artisan optimize:clear || true
 
 # Enable error reporting in PHP
 RUN echo "display_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
-    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    && echo "error_reporting = E_ALL" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "log_errors = On" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+    && echo "error_log = /var/www/html/storage/logs/php_errors.log" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+# Create a startup script
+COPY docker/start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
 # Expose port 80
 EXPOSE 80
 
 # Start Apache
-CMD ["apache2-foreground"] 
+CMD ["/usr/local/bin/start.sh"] 
