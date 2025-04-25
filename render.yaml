@@ -3,6 +3,8 @@ services:
     name: bakery-website
     env: docker
     dockerfilePath: ./Dockerfile
+    port: 80
+    healthCheckPath: /
     envVars:
       - key: APP_ENV
         value: production
